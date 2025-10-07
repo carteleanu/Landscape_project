@@ -61,7 +61,7 @@ def update_all_banks():
         fill_bank(i, color)
 
 
-def blink_bank(bank_index, color, times=2, delay=0.1):
+def blink_bank(bank_index, color, times=2, delay=0.01):
     original_color = bank_colors[bank_index]
     for _ in range(times):
         fill_bank(bank_index, color)
@@ -72,14 +72,14 @@ def blink_bank(bank_index, color, times=2, delay=0.1):
     strips[bank_index].write()
 
 
-def blink_all(color, times=3, delay=0.3):
+'''def blink_all(color, times=3, delay=0.3):
     for _ in range(times):
         for b in range(NUM_BUTTONS):
             fill_bank(b, color)
         time.sleep(delay)
         for b in range(NUM_BUTTONS):
             fill_bank(b, (0, 0, 0))
-        time.sleep(delay)
+        time.sleep(delay)'''
 
 
 def colors_match(c1, c2):
@@ -192,7 +192,7 @@ while True:
                 if all_banks_same_color():
                     print("🎉 All banks match! You win!")
                     win_sound()
-                    rainbow_chase(cycles=6, wait=0.0002, speed=15)
+                    rainbow_chase(cycles=5, wait=0.0002, speed=19)
                     time.sleep(1.5)  # pause to celebrate
                     bank_colors = generate_random_bank_colors()
                     update_all_banks()
