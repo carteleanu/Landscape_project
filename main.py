@@ -61,7 +61,7 @@ def update_all_banks():
         fill_bank(i, color)
 
 
-def blink_bank(bank_index, color, times=2, delay=0.01):
+def blink_bank(bank_index, color, times=2, delay=0.07):
     original_color = bank_colors[bank_index]
     for _ in range(times):
         fill_bank(bank_index, color)
@@ -202,6 +202,17 @@ while True:
         button_was_pressed[i] = is_pressed_now
 
     time.sleep_ms(10)
+
+
+
+
+
+
+
+
+
+
+
 
 
 
