@@ -15,15 +15,15 @@ LED_PINS = [0, 1, 2, 3, 4, 5, 6, 20, 22, 19]
 
 # Colors (10 distinct colors for 10 buttons)
 COLOR_PALETTE = [
-    (255, 0, 0), (0, 255, 0), (0, 0, 255),          # Red, Green, Blue
+    (255, 0, 0), (0, 255, 0), (0, 0, 255),  # Red, Green, Blue
     (255, 255, 0), (255, 120, 120), (255, 69, 1),  # Yellow, Pink, Orange
-    (94, 249, 32), (255, 255, 255), (108, 0, 108), # Light Green, White, Purple
-    (100, 255, 255),                                # Light Blue
+    (94, 249, 32), (255, 255, 255), (108, 0, 108),  # Light Green, White, Purple
+    (100, 255, 255),  # Light Blue
 ]
 BLACK = (0, 0, 0)
 
 # Sound trigger pins (Assuming active-low triggers for BooTunes/MP3 modules)
-SOUND_PIN = 21     # General Start Sound (Used for initial "Game Ready")
+SOUND_PIN = 21  # General Start Sound (Used for initial "Game Ready")
 FAIL_SOUND = 8
 SUCCESS_SOUND = 27
 WIN_SOUND = 7
@@ -34,10 +34,10 @@ MEMORIZE_PHASE = 1
 WAITING_FOR_GUESS = 2
 
 game_state = WAITING_FOR_START
-target_color = BLACK       # The color the user needs to find
-correct_guess_index = -1   # The index (position) of the target color in the last display phase
+target_color = BLACK  # The color the user needs to find
+correct_guess_index = -1  # The index (position) of the target color in the last display phase
 initial_button_index = -1  # Stores the button index pressed to choose the target color
-start_display_ready = False # Tracks if the initial display setup has run
+start_display_ready = False  # Tracks if the initial display setup has run
 
 # Track previous button pressed state (for edge detection)
 button_was_pressed = [False] * NUM_BUTTONS
@@ -53,7 +53,7 @@ fire_last_update = [time.ticks_ms()] * NUM_BUTTONS
 
 # --- Hardware setup ---
 buttons = [machine.Pin(pin, machine.Pin.IN, machine.Pin.PULL_UP) for pin in BUTTON_PINS]
-strips  = [neopixel.NeoPixel(machine.Pin(pin), LEDS_PER_BANK) for pin in LED_PINS]
+strips = [neopixel.NeoPixel(machine.Pin(pin), LEDS_PER_BANK) for pin in LED_PINS]
 
 # Initialize sound pins high (assuming active-low trigger)
 sound_trigger_pin = machine.Pin(SOUND_PIN, machine.Pin.OUT)
@@ -81,16 +81,20 @@ def fill_bank(bank_index, color):
         strip[i] = color
     strip.write()
 
+
 def fill_all(color):
     for i in range(NUM_BUTTONS):
         fill_bank(i, color)
 
+
 def black_out_all():
     fill_all(BLACK)
+
 
 def update_all_banks():
     for i, color in enumerate(bank_colors):
         fill_bank(i, color)
+
 
 def blink_all(color, times=3, delay=0.3):
     for _ in range(times):
@@ -98,6 +102,16 @@ def blink_all(color, times=3, delay=0.3):
         time.sleep(delay)
         black_out_all()
         time.sleep(delay)
+
+
+def alert_lights_fail(bank_index, flashes=4, delay=0.1):
+    for _ in range(flashes):
+        fill_bank(bank_index, (255, 0, 0))  # Red
+        time.sleep(delay)
+        fill_bank(bank_index, (0, 0, 255))  # White
+        time.sleep(delay)
+    fill_bank(bank_index, (0, 0, 0))  # Turn off
+
 
 def wheel(pos):
     if pos < 0 or pos > 255:
@@ -109,6 +123,7 @@ def wheel(pos):
         return (0, 255 - pos * 3, pos * 3)
     pos -= 170
     return (pos * 3, 0, 255 - pos * 3)
+
 
 def rainbow_chase(cycles, wait, speed):
     # HUE_STEP_PER_PIXEL ensures the color pattern transitions smoothly across banks.
@@ -188,6 +203,7 @@ def fail_sound():
     fail_trigger_pin.value(0)
     time.sleep_ms(100)
     fail_trigger_pin.value(1)
+
 
 def win_sound():
     print("Playing win sound")
@@ -285,7 +301,7 @@ def run_game_loop():
             print("❌ WRONG COLOR! Retrying the pattern.")
             fail_sound()
             # Briefly show the pressed button in Red to indicate failure
-            fill_bank(button_index, (255, 0, 0))
+            alert_lights_fail(button_index)
             time.sleep(0.5)
             black_out_all()
             game_state = MEMORIZE_PHASE
